@@ -1,0 +1,15 @@
+.vagrant/
+.venv/
+book/
+
+*.iso
+*.jpg
+*.log
+*.tgz
+*kubeconfig.yaml
+Chart.lock
+creds
+*.hcl
+*.exe
+*.tfstate
+*.tfvars

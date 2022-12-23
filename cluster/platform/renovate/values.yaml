@@ -1,0 +1,14 @@
+renovate:
+  cronjob:
+    schedule: '0 9 * * 1'
+    suspend: false
+  envFrom:
+  - secretRef:
+      name: "renovate-env"
+  renovate:
+    config: |
+      {
+        "repositories": [
+          "ops/homelab"
+        ]
+      }

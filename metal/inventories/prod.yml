@@ -1,0 +1,10 @@
+metal:
+  children:
+    masters:
+      hosts:
+        poseidon: {ansible_host: 192.168.1.231, mac: 'd4:5d:df:1f:9c:b7', disk: nvme0n1, network_interface: eno1}
+        zeus: {ansible_host: 192.168.1.232, mac: '94:c6:91:a0:f4:24', disk: sda, network_interface: eno1}
+        hera: {ansible_host: 192.168.1.233, mac: '94:c6:91:19:23:03', disk: nvme0n1, network_interface: eno1}
+    workers:
+      hosts:
+        demeter: {ansible_host: 192.168.1.234, mac: 'd4:5d:df:1f:a8:a7', disk: nvme0n1, network_interface: eno1}

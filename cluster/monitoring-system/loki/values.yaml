@@ -1,0 +1,21 @@
+loki-stack:
+  grafana:
+    sidecar:
+      datasources:
+        enabled: false
+  loki:
+    serviceMonitor:
+      enabled: true
+    persistence:
+      enabled: true
+      accessModes:
+        - ReadWriteOnce
+      size: 20Gi
+      storageClassName: longhorn
+    config:
+      table_manager:
+        retention_deletes_enabled: true
+        retention_period: 240h
+  promtail:
+    serviceMonitor:
+      enabled: true

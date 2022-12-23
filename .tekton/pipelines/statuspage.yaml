@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: statuspage
+spec:
+  workspaces:
+    - name: shared-data-statuspage
+  tasks:
+    - name: fetch-repo
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-data-statuspage
+      params:
+        - name: url
+          value: http://gitea-http.gitea:3000/ops/statuspage
+        - name: revision
+          value: master
+    - name: statuspage
+      runAfter:
+        - fetch-repo
+      workspaces:
+        - name: source
+          workspace: shared-data-statuspage
+      taskRef:
+        name: kaniko
+      params:
+        - name: CONTEXT
+          value: ./app
+        - name: IMAGE
+          value: registry.dex136.xyz/statuspage:latest
+    - name: restart-pod
+      runAfter:
+        - statuspage
+      taskRef:
+        name: kubernetes-actions
+      params:
+        - name: script
+          value: |
+            kubectl rollout restart deployment/statuspage -n statuspage

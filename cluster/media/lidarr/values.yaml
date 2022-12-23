@@ -1,0 +1,65 @@
+lidarr:
+  env:
+    TZ: America/New_York
+  ingress:
+    main:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        hajimari.io/enable: "true"
+        hajimari.io/icon: "file-music"
+        nginx.ingress.kubernetes.io/configuration-snippet: |
+            proxy_set_header Accept-Encoding "";
+            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.dev/css/base/lidarr/dark.css"></head>';
+            sub_filter_once on;
+      hosts:
+        - host: &host lidarr.dex136.xyz
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: lidarr-tls-certificate
+          hosts:
+            - *host
+  persistence:
+    config:
+      enabled: true
+      existingClaim: pvc-lidarr-config
+    media:
+      enabled: true
+      type: custom
+      mountPath: /media
+      volumeSpec:
+        nfs:
+          server: 192.168.1.8
+          path: /volume1/MediaLibrary/
+    complete:
+      enabled: true
+      type: custom
+      mountPath: /complete
+      volumeSpec:
+        nfs:
+          server: 192.168.1.8
+          path: /volume1/Torrents/Completed
+    backup:
+      enabled: true
+      type: custom
+      mountPath: /config/Backups
+      volumeSpec:
+        nfs:
+          server: 192.168.1.8
+          path: /volume1/GeneralStorage/Backup/lidarr
+  initContainers:
+    update-volume-permission:
+      image: busybox
+      command: ["sh", "-c", "chown -R 568:568 /config"]
+      volumeMounts:
+      - name: config
+        mountPath: /config
+      securityContext:
+        runAsUser: 0
+  resources:
+    requests:
+      cpu: 3m
+      memory: 200Mi

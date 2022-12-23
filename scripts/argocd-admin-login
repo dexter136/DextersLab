@@ -1,0 +1,7 @@
+#!/bin/sh
+
+argocd login \
+    argocd.dex136.xyz \
+    --username admin \
+    --password "$(./scripts/argocd-admin-password)" \
+    --insecure # TODO Remove insecure login

@@ -1,0 +1,14 @@
+gitops:
+  repo: http://gitea-http.gitea:3000/ops/homelab
+  revision: main
+applicationsets:
+  - name: apps
+  - name: media
+    namespace: media
+  - name: system
+  - name: platform
+  - name: monitoring-system
+    namespace: monitoring-system
+  - name: bootstrap
+    namespace: argocd
+    pnameoverride: argocd

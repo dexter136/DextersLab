@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # Pipeline
+  - https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+  # Triggers
+  - https://storage.googleapis.com/tekton-releases/triggers/latest/release.yaml
+  - https://storage.googleapis.com/tekton-releases/triggers/latest/interceptors.yaml
+  # Dashboard
+  - https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
+  # Additional
+  - ingress.yaml
+  - cluster-role-binding.yaml
+  - service-account.yaml
+  # Tasks
+  - https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-clone/0.9/git-clone.yaml
+  - https://raw.githubusercontent.com/tektoncd/catalog/main/task/kaniko/0.6/kaniko.yaml
+  - https://raw.githubusercontent.com/tektoncd/catalog/main/task/pull-request/0.1/pull-request.yaml
+  - https://raw.githubusercontent.com/tektoncd/catalog/main/task/kubernetes-actions/0.2/kubernetes-actions.yaml
+
+bases:
+  - ../../../.tekton
+
+patchesStrategicMerge:
+- |-
+  apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: tekton-pipelines
+    labels:
+      app.kubernetes.io/instance: default
+      app.kubernetes.io/part-of: tekton-pipelines
+      $patch: replace

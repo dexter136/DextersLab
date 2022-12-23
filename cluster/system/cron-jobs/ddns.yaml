@@ -1,0 +1,65 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dyndns-updater
+  namespace: cron-jobs
+  labels:
+    app.kubernetes.io/name: dyndns-updater
+    app.kubernetes.io/instance: dyndns-updater
+data:
+  dyndns-updater.sh: |
+    #!/bin/sh
+    IP=$(curl -s checkip.dyndns.org | grep -Eo '[0-9\.]+')
+    curl -X PUT \
+      "https://api.cloudflare.com/client/v4/zones/${ZONE}/dns_records/${RECORD}" \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer ${KEY}" \
+      --data '{"type":"A","name":"'${NAME}'","content":"'${IP}'","ttl":3600,"priority":10,"proxied":false}'
+    curl -X PUT \
+      "https://api.cloudflare.com/client/v4/zones/${ZONE2}/dns_records/${RECORD2}" \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer ${KEY2}" \
+      --data '{"type":"A","name":"'${NAME2}'","content":"'${IP}'","ttl":3600,"priority":10,"proxied":false}'
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  namespace: cron-jobs
+  name: dyndns-updater
+spec:
+  schedule: "0 * * * *"
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: dyndns-updater
+            image: curlimages/curl:7.75.0
+            imagePullPolicy: IfNotPresent
+            envFrom:
+            - secretRef:
+                name: "ddns-token"
+            command:
+            - "/bin/sh"
+            - "/app/dyndns-updater.sh"
+            volumeMounts:
+            - name: dyndns-updater
+              mountPath: /app/dyndns-updater.sh
+              subPath: dyndns-updater.sh
+              readOnly: true
+          volumes:
+          - name: dyndns-updater
+            projected:
+              defaultMode: 0775
+              sources:
+              - configMap:
+                  name: dyndns-updater
+                  items:
+                  - key: dyndns-updater.sh
+                    path: dyndns-updater.sh
+---

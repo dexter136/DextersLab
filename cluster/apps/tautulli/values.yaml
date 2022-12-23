@@ -1,0 +1,47 @@
+tautulli:
+  env:
+    TZ: America/New_York
+  ingress:
+    main:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        hajimari.io/enable: "true"
+        hajimari.io/icon: "chart-bar"
+        nginx.ingress.kubernetes.io/configuration-snippet: |
+            proxy_set_header Accept-Encoding "";
+            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.dev/css/base/tautulli/dark.css"></head>';
+            sub_filter_once on;
+      hosts:
+        - host: &host tautulli.dex136.xyz
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: tautulli-tls-certificate
+          hosts:
+            - *host
+  persistence:
+    config:
+      enabled: true
+      existingClaim: pvc-tautulli-config
+    backup:
+      enabled: true
+      type: custom
+      volumeSpec:
+        nfs:
+          server: 192.168.1.8
+          path: /volume1/GeneralStorage/Backup/tautulli
+      mountPath: /config/backups
+      readOnly: false
+
+  initContainers:
+    update-volume-permission:
+      image: busybox
+      command: ["sh", "-c", "chown -R 568:568 /config"]
+      volumeMounts:
+      - name: config
+        mountPath: /config
+      securityContext:
+        runAsUser: 0

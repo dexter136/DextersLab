@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: poddown
+spec:
+  workspaces:
+    - name: shared-data-poddown
+  tasks:
+    - name: fetch-repo
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-data-poddown
+      params:
+        - name: url
+          value: http://gitea-http.gitea:3000/ops/poddown
+        - name: revision
+          value: master
+    - name: poddown
+      runAfter:
+        - fetch-repo
+      workspaces:
+        - name: source
+          workspace: shared-data-poddown
+      taskRef:
+        name: kaniko
+      params:
+        - name: CONTEXT
+          value: ./
+        - name: IMAGE
+          value: registry.dex136.xyz/poddown:latest

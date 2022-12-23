@@ -1,0 +1,7 @@
+apiVersion: v2
+name: longhorn
+version: 0.0.0
+dependencies:
+  - name: longhorn
+    version: 1.4.0-rc2
+    repository: https://github.com/longhorn/longhorn/tree/master/chart

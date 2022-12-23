@@ -1,0 +1,7 @@
+apiVersion: v2
+name: gaps
+version: 0.0.0
+dependencies:
+  - name: gaps
+    version: 5.4.2
+    repository: https://k8s-at-home.com/charts/

@@ -1,0 +1,87 @@
+qbittorrent:
+  env:
+    TZ: America/New_York
+  settings:
+    automaticPortSetup: true
+  service:
+    bittorrent:
+      enabled: true
+      type: LoadBalancer
+      ports:
+        bittorrent:
+          enabled: true
+          port: 1080
+          protocol: TCP
+          targetPort: 1080
+  ingress:
+    main:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        hajimari.io/enable: "true"
+        hajimari.io/icon: "pirate"
+        nginx.ingress.kubernetes.io/configuration-snippet: |
+            proxy_hide_header "x-webkit-csp";
+            proxy_hide_header "content-security-policy";
+            proxy_hide_header "X-Frame-Options";
+            proxy_set_header Accept-Encoding "";
+            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.dev/css/base/qbittorrent/dark.css"></head>';
+            sub_filter_once on;
+      hosts:
+        - host: &host qbittorrent.dex136.xyz
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: qbittorrent-tls-certificate
+          hosts:
+            - *host
+  persistence:
+    config:
+      enabled: true
+      existingClaim: pvc-qbittorrent-config
+    downloads:
+      enabled: true
+      type: custom
+      mountPath: /torrents
+      volumeSpec:
+        nfs:
+          server: 192.168.1.8
+          path: /volume1/Torrents/
+#  addons:
+#    vpn:
+#      enabled: true
+#      type: openvpn
+#      openvpn:
+#        authSecret: "pia-auth"
+#      securityContext:
+#        runAsGroup: 0
+#        runAsUser: 0
+#      env:
+#        FIREWALL: 'on'
+#      configFileSecret: "pia-config"
+#      scripts:
+#        up: |-
+#          #!/bin/bash
+#          /etc/openvpn/up.sh
+#          echo "connected" > /shared/vpnstatus
+#
+#        down: |-
+#          #!/bin/bash
+#          /etc/openvpn/down.sh
+#          echo "disconnected" > /shared/vpnstatus
+
+  initContainers:
+    update-volume-permission:
+      image: busybox
+      command: ["sh", "-c", "chown -R 568:568 /config"]
+      volumeMounts:
+      - name: config
+        mountPath: /config
+      securityContext:
+        runAsUser: 0
+  resources:
+    requests:
+      cpu: 6m
+      memory: 2048Mi

@@ -1,0 +1,16 @@
+longhorn:
+  defaultSettings:
+    backupTarget: nfs://192.168.1.8:/volume1/GeneralStorage/Backup/longhorn
+    nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+  persistence:
+    defaultClassReplicaCount: 2
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      hajimari.io/enable: "true"
+      hajimari.io/icon: "bugle"
+      hajimari.io/appName: "Longhorn"
+    host: longhorn.dex136.xyz
+    tls: true

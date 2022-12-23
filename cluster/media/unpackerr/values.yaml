@@ -1,0 +1,25 @@
+unpackerr:
+  env:
+    TZ: America/New_York
+    UN_SONARR_0_URL: http://sonarr:8989
+    UN_SONARR_0_PATHS_0: /complete
+    UN_RADARR_0_URL: http://radarr:7878
+    UN_RADARR_0_PATHS_0: /complete
+    UN_LIDARR_0_URL: http://lidarr:8686
+    UN_LIDARR_0_PATHS_0: /complete
+  envFrom:
+  - secretRef:
+      name: unpackerr-env
+  persistence:
+    complete:
+      enabled: true
+      type: custom
+      mountPath: /complete
+      volumeSpec:
+        nfs:
+          server: 192.168.1.8
+          path: /volume1/Torrents/Completed
+  resources:
+    requests:
+      cpu: 2m
+      memory: 100Mi

@@ -1,0 +1,15 @@
+{{- range $index, $claim := .Values.claim }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $claim.name }}
+  namespace: {{ $claim.namespace }}
+spec:
+  accessModes:
+    - {{ default "ReadWriteOnce" $claim.accessMode }}
+  storageClassName: {{ default "longhorn" $claim.storageClassName }}
+  resources:
+    requests:
+      storage: {{ default "1Gi" $claim.storage }}
+{{- end }}

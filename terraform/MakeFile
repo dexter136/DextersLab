@@ -1,0 +1,11 @@
+.POSIX:
+
+default: external secrets
+
+.PHONY: secrets
+secrets:
+	make -C secrets
+
+.PHONY: external
+external:
+	make -C external

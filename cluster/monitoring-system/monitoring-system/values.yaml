@@ -1,0 +1,114 @@
+kube-prometheus-stack:
+  defaultRules:
+    rules:
+      etcd: false
+  kubeControllerManager:
+    enabled: false
+  kubeScheduler:
+    enabled: false
+  kubeEtcd:
+    enabled: false
+  kubeProxy:
+    enabled: true
+    endpoints:
+      - 192.168.3.0
+      - 192.168.3.1
+      - 192.168.3.2
+    service:
+      enabled: true
+      port: 10249
+      targetPort: 10249
+  grafana:
+    defaultDashboardsTimezone: America/New_York
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        hajimari.io/enable: "true"
+        hajimari.io/icon: chart-areaspline
+        hajimari.io/appName: "Grafana"
+      hosts:
+        - &host grafana.dex136.xyz
+      tls:
+        - secretName: grafana-general-tls
+          hosts:
+            - *host
+    additionalDataSources:
+      - name: Loki
+        type: loki
+        url: http://loki.monitoring-system:3100
+        isDefault: false
+
+  prometheus:
+    prometheusSpec:
+      ruleSelectorNilUsesHelmValues: false
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+      probeSelectorNilUsesHelmValues: false
+      retention: 2d
+      retentionSize: 40GB
+      resources:
+        requests:
+          cpu: 275m
+          memory: 4800Mi
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: longhorn
+            accessModes:
+              - "ReadWriteOnce"
+            resources:
+              requests:
+                storage: 80Gi
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        hajimari.io/enable: "true"
+        hajimari.io/icon: text-box-search
+        hajimari.io/appName: "Prometheus"
+      hosts:
+        - &host prometheus.dex136.xyz
+      tls:
+        - secretName: prometheus-general-tls
+          hosts:
+            - *host
+
+  alertmanager:
+    config:
+      receivers:
+      - name: 'discord_webhook'
+        webhook_configs:
+        - url: 'http://alertmanager-discord.monitoring-system:9094'
+      - name: 'null'
+      route:
+        group_by: ['alertname']
+        group_wait: 20s
+        group_interval: 5m
+        repeat_interval: 6h 
+        receiver: discord_webhook
+        routes:
+          - receiver: "null"
+            match:
+              alertname: Watchdog
+          - receiver: "null"
+            match:
+              alertname: InfoInhibitor
+          - receiver: "discord_webhook"
+            continue: true
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        hajimari.io/enable: "true"
+        hajimari.io/icon: alert
+        hajimari.io/appName: "Alert Manager"
+      hosts:
+        - &host alertmanager.dex136.xyz
+      tls:
+        - secretName: alertmanager-general-tls
+          hosts:
+            - *host

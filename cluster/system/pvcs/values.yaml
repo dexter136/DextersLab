@@ -1,0 +1,28 @@
+claim:
+  - name: pvc-jellyfin-config
+    namespace: jellyfin
+  - name: pvc-tautulli-config
+    namespace: tautulli
+  - name: pvc-uptime-kuma
+    namespace: uptime-kuma
+    storage: 2Gi
+  - name: pvc-lidarr-config
+    namespace: media
+  - name: pvc-overseerr-config
+    namespace: media
+  - name: pvc-prowlarr-config
+    namespace: media
+    storage: 2Gi
+  - name: pvc-qbittorrent-config
+    namespace: media
+  - name: pvc-radarr-config
+    namespace: media
+    storage: 2Gi
+  - name: pvc-sonarr-config
+    namespace: media
+  - name: pvc-jackett-config
+    namespace: media
+  - name: pvc-gaps-data
+    namespace: media
+  - name: hajimari-data
+    namespace: hajimari

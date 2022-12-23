@@ -1,0 +1,33 @@
+jackett:
+  env:
+    TZ: America/New_York
+  ingress:
+    main:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        hajimari.io/enable: "true"
+        hajimari.io/icon: "coat-rack"
+      hosts:
+        - host: &host jackett.dex136.xyz
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: jackett-tls-certificate
+          hosts:
+            - *host
+  persistence:
+    config:
+      enabled: true
+      existingClaim: pvc-jackett-config
+  initContainers:
+    update-volume-permission:
+      image: busybox
+      command: ["sh", "-c", "chown -R 568:568 /config"]
+      volumeMounts:
+      - name: config
+        mountPath: /config
+      securityContext:
+        runAsUser: 0

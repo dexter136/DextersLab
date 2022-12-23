@@ -1,0 +1,49 @@
+prowlarr:
+  env:
+    TZ: America/New_York
+  ingress:
+    main:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        hajimari.io/enable: "true"
+        hajimari.io/icon: "database-check"
+        nginx.ingress.kubernetes.io/configuration-snippet: |
+            proxy_set_header Accept-Encoding "";
+            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.dev/css/base/prowlarr/dark.css"></head>';
+            sub_filter_once on;
+      hosts:
+        - host: &host prowlarr.dex136.xyz
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: prowlarr-tls-certificate
+          hosts:
+            - *host
+  persistence:
+    config:
+      enabled: true
+      existingClaim: pvc-prowlarr-config
+    backup:
+      enabled: true
+      type: custom
+      mountPath: /config/Backups
+      volumeSpec:
+        nfs:
+          server: 192.168.1.8
+          path: /volume1/GeneralStorage/Backup/prowlarr
+  initContainers:
+    update-volume-permission:
+      image: busybox
+      command: ["sh", "-c", "chown -R 568:568 /config"]
+      volumeMounts:
+      - name: config
+        mountPath: /config
+      securityContext:
+        runAsUser: 0
+  resources:
+    requests:
+      cpu: 2m
+      memory: 200Mi

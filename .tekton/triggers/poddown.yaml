@@ -1,0 +1,54 @@
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: gitea-poddown
+spec:
+  serviceAccountName: terraform-sa
+  triggers:
+    - name: gitea-poddown
+      bindings:
+        - ref: tb-gitea-poddown
+      template:
+        spec:
+          params:
+            - name: gitrevision
+              description: The git revision
+              default: staging
+            - name: gitrepositoryurl
+              description: The git repository url
+          resourcetemplates:
+            - apiVersion: tekton.dev/v1beta1
+              kind: PipelineRun
+              metadata:
+                generateName: tekton-poddown-
+                labels:
+                  tekton.dev/pipeline: poddown
+                annotations:
+                  argocd.argoproj.io/compare-options: IgnoreExtraneous
+                  argocd.argoproj.io/sync-options: Prune=false
+              spec:
+                serviceAccountName: terraform-sa
+                pipelineRef:
+                  name: poddown
+                workspaces:
+                  - name: shared-data-poddown
+                    volumeClaimTemplate:
+                      spec:
+                        storageClassName: longhorn
+                        accessModes:
+                          - ReadWriteOnce
+                        resources:
+                          requests:
+                            storage: 1Gi
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: tb-gitea-poddown
+spec:
+  params:
+    - name: gitrevision
+      value: $(body.after)
+    - name: gitrepositoryurl
+      value: $(body.repository.clone_url)

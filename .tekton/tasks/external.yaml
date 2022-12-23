@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: terraform-external
+spec:
+  workspaces:
+    - name: source
+  stepTemplate:
+    image: hashicorp/terraform:1.3.4
+    workingDir: /workspace/source/terraform/external
+    volumeMounts:
+      - name: terraform-secrets
+        mountPath: /root/.terraform.d/credentials.tfrc.json
+        subPath: credentials.tfrc.json
+      - name: terraform-secrets
+        mountPath: /workspace/source/terraform/external/terraform.tfvars
+        subPath: terraform.tfvars
+    command:
+      - terraform
+  volumes:
+    - name: terraform-secrets
+      secret:
+        secretName: terraform-external-vars
+  steps:
+    - name: external-init
+      args:
+        - init
+    - name: external-plan
+      args:
+        - plan
+        - -out=tfplan
+    - name: apply
+      args:
+        - apply
+        - -auto-approve
+        - tfplan
