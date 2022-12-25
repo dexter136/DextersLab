@@ -11,9 +11,9 @@ kube-prometheus-stack:
   kubeProxy:
     enabled: true
     endpoints:
-      - 192.168.3.0
-      - 192.168.3.1
-      - 192.168.3.2
+      - 192.168.1.231
+      - 192.168.1.232
+      - 192.168.1.233
     service:
       enabled: true
       port: 10249
