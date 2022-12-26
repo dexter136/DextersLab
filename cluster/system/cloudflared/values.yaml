@@ -2,7 +2,7 @@ cloudflared:
   image:
     repository: cloudflare/cloudflared
     pullPolicy: IfNotPresent
-    tag: "2022.10.3"
+    tag: "2022.12.1"
   credentials:
     existingSecret: cloudflared-credentials
   config:
