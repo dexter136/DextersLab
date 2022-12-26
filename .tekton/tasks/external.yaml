@@ -6,7 +6,7 @@ spec:
   workspaces:
     - name: source
   stepTemplate:
-    image: hashicorp/terraform:1.3.4
+    image: hashicorp/terraform:1.3.6
     workingDir: /workspace/source/terraform/external
     volumeMounts:
       - name: terraform-secrets
