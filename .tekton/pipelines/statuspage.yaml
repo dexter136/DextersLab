@@ -16,7 +16,7 @@ spec:
         - name: url
           value: http://gitea-http.gitea:3000/ops/statuspage
         - name: revision
-          value: master
+          value: main
     - name: statuspage
       runAfter:
         - fetch-repo

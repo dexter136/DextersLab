@@ -8,7 +8,7 @@ spec:
   steps:
     - name: ansible
       image: cytopia/ansible-lint
-      workingDir: /workspace/source/metal
+      workingDir: /workspace/source/git/metal
       command:
         - ansible-lint
       args:

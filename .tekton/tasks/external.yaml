@@ -7,13 +7,13 @@ spec:
     - name: source
   stepTemplate:
     image: hashicorp/terraform:1.3.6
-    workingDir: /workspace/source/terraform/external
+    workingDir: /workspace/source/git/terraform/external
     volumeMounts:
       - name: terraform-secrets
         mountPath: /root/.terraform.d/credentials.tfrc.json
         subPath: credentials.tfrc.json
       - name: terraform-secrets
-        mountPath: /workspace/source/terraform/external/terraform.tfvars
+        mountPath: /workspace/source/git/terraform/external/terraform.tfvars
         subPath: terraform.tfvars
     command:
       - terraform

@@ -29,6 +29,9 @@ spec:
                   argocd.argoproj.io/sync-options: Prune=false
               spec:
                 serviceAccountName: terraform-sa
+                podTemplate:
+                  securityContext:
+                    fsGroup: 65532
                 pipelineRef:
                   name: homelab
                 workspaces:

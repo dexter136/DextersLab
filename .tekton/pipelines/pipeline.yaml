@@ -16,7 +16,9 @@ spec:
         - name: url
           value: http://gitea-http.gitea:3000/ops/homelab
         - name: revision
-          value: master
+          value: main
+        - name: subdirectory
+          value: git
     - name: lint
       runAfter:
         - fetch-repo
