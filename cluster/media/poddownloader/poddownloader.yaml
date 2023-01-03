@@ -52,7 +52,7 @@ spec:
           restartPolicy: Never
           containers:
           - name: poddown
-            image: registry.dex136.xyz/poddown:0.5
+            image: registry.dex136.xyz/poddown:latest
             imagePullPolicy: IfNotPresent
             env:
               - name: LAST_N
